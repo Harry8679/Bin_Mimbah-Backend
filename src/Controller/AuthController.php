@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
-use ApiPlatform\Validator\ValidatorInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -23,7 +23,7 @@ final class AuthController extends AbstractController
         $phoneNumber = $data['phone_number'] ?? null;
         $password = $data['password'] ?? null;
 
-        if (!$firstName || !$lastName || $phoneNumber || $password) {
+        if (!$firstName || !$lastName || !$phoneNumber || !$password) {
             return new JsonResponse(['error' => 'Tous les champs sont obligatoires'], 400);
         }
 
@@ -39,8 +39,13 @@ final class AuthController extends AbstractController
         $user->setIsVerified(false);
 
         $errors = $validator->validate($user);
-        if (count($errors) > 0) {
-            return new JsonResponse(['error' => (string) $errors], 400);
+        if ($errors->count() > 0) {
+            $errorMessages = [];
+            foreach ($errors as $error) {
+                $errorMessages[] = $error->getMessage();
+            }
+        
+            return new JsonResponse(['errors' => $errorMessages], 400);
         }
 
         $em->persist($user);
