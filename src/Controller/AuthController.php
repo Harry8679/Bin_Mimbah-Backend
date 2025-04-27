@@ -52,9 +52,5 @@ final class AuthController extends AbstractController
         $em->flush();
 
         return new JsonResponse(['message' => 'Utilisateur enregistré avec succès.'], 201);
-
-        return $this->render('auth/index.html.twig', [
-            'controller_name' => 'AuthController',
-        ]);
     }
 }
