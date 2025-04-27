@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
@@ -52,5 +53,45 @@ final class AuthController extends AbstractController
         $em->flush();
 
         return new JsonResponse(['message' => 'Utilisateur enregistré avec succès.'], 201);
+    }
+
+    #[Route('/api/login', name: 'app_login', methods: ['POST'])]
+    public function login(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $passwordHasher, JWTTokenManagerInterface $jwtManager): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+
+        $phoneNumber = $data['phone_number'] ?? null;
+        $password = $data['password'] ?? null;
+
+        if (!$phoneNumber || !$password) {
+            return new JsonResponse(['error' => 'Numéro de téléphone et mot de passe requis.'], 400);
+        }
+
+        $user = $em->getRepository(User::class)->findOneBy(['phone_number' => $phoneNumber]);
+
+        if (!$user) {
+            return new JsonResponse(['error' => 'Utilisateur non trouvé.'], 404);
+        }
+
+        if (!$user->isVerified()) {
+            return new JsonResponse(['error' => 'Votre compte n\'est pas encore vérifié.'], 403);
+        }
+
+        if (!$passwordHasher->isPasswordValid($user, $password)) {
+            return new JsonResponse(['error' => 'Mot de passe incorrect.'], 401);
+        }
+
+        // Générer le token JWT
+        $token = $jwtManager->create($user);
+
+        return new JsonResponse([
+            'token' => $token,
+            'user' => [
+                'id' => $user->getId(),
+                'phone_number' => $user->getPhoneNumber(),
+                'firstName' => $user->getFirstName(),
+                'lastName' => $user->getLastName(),
+            ]
+        ], 200);
     }
 }
