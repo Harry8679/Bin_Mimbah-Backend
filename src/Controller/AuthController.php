@@ -49,6 +49,12 @@ final class AuthController extends AbstractController
             return new JsonResponse(['errors' => $errorMessages], 400);
         }
 
+        $existingUser = $em->getRepository(User::class)->findOneBy(['phoneNumber' => $phoneNumber]);
+
+        if ($existingUser) {
+            return new JsonResponse(['error' => 'Ce numéro est déjà utilisé.'], 409);
+        }
+
         $em->persist($user);
         $em->flush();
 
