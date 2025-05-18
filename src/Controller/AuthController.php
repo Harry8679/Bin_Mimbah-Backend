@@ -28,6 +28,13 @@ final class AuthController extends AbstractController
             return new JsonResponse(['error' => 'Tous les champs sont obligatoires'], 400);
         }
 
+        // ✅ Vérifie d'abord si le numéro est déjà utilisé
+        $existingUser = $em->getRepository(User::class)->findOneBy(['phoneNumber' => $phoneNumber]);
+        if ($existingUser) {
+            return new JsonResponse(['error' => 'Ce numéro est déjà utilisé.'], 409);
+        }
+
+        // Ensuite on continue normalement
         $user = new User();
         $user->setFirstName($firstName);
         $user->setLastName($lastName);
@@ -45,14 +52,8 @@ final class AuthController extends AbstractController
             foreach ($errors as $error) {
                 $errorMessages[] = $error->getMessage();
             }
-        
+
             return new JsonResponse(['errors' => $errorMessages], 400);
-        }
-
-        $existingUser = $em->getRepository(User::class)->findOneBy(['phoneNumber' => $phoneNumber]);
-
-        if ($existingUser) {
-            return new JsonResponse(['error' => 'Ce numéro est déjà utilisé.'], 409);
         }
 
         $em->persist($user);
@@ -60,6 +61,7 @@ final class AuthController extends AbstractController
 
         return new JsonResponse(['message' => 'Utilisateur enregistré avec succès.'], 201);
     }
+
 
     #[Route('/api/login', name: 'app_login', methods: ['POST'])]
     public function login(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $passwordHasher, JWTTokenManagerInterface $jwtManager): JsonResponse
