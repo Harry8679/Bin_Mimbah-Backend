@@ -15,9 +15,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 final class AuthController extends AbstractController
 {
     #[Route('/api/register', name: 'app_register', methods: ['POST'])]
-    public function register(Request $request, 
-    EntityManagerInterface $em, UserPasswordHasherInterface $passwordHasher, 
-    ValidatorInterface $validator): JsonResponse
+    public function register(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $passwordHasher, ValidatorInterface $validator): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
 
