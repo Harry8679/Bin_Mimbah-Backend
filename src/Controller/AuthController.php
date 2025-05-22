@@ -102,4 +102,10 @@ final class AuthController extends AbstractController
             ]
         ], 200);
     }
+
+    #[Route('/api/logout', name: 'app_logout', methods: ['POST'])]
+    public function logout(): JsonResponse
+    {
+        return new JsonResponse(['message' => 'Déconnexion réussie.']);
+    }
 }
