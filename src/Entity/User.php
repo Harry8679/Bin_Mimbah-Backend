@@ -46,6 +46,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?bool $is_verified = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $email = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $city = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $district = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $profilePicture = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -153,6 +165,54 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsVerified(bool $is_verified): static
     {
         $this->is_verified = $is_verified;
+
+        return $this;
+    }
+
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(?string $email): static
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    public function getCity(): ?string
+    {
+        return $this->city;
+    }
+
+    public function setCity(?string $city): static
+    {
+        $this->city = $city;
+
+        return $this;
+    }
+
+    public function getDistrict(): ?string
+    {
+        return $this->district;
+    }
+
+    public function setDistrict(?string $district): static
+    {
+        $this->district = $district;
+
+        return $this;
+    }
+
+    public function getProfilePicture(): ?string
+    {
+        return $this->profilePicture;
+    }
+
+    public function setProfilePicture(?string $profilePicture): static
+    {
+        $this->profilePicture = $profilePicture;
 
         return $this;
     }
